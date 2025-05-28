@@ -38,8 +38,7 @@ This AI-driven system enhances criminal detection by analyzing both CCTV footage
 ### Clone the Repository
 
 ```
-git clone https://github.com/Mit-Gandhi/HackOverflow-AI_Mavericks.git  
-cd AI-Criminal-Detection
+git clone https://github.com/Mit-Gandhi/Hack_with_gujarat.git
 ```
 
 ### Backend Setup
@@ -53,7 +52,7 @@ pip install -r backend/requirements.txt
 #### Run the FastAPI server:
 ```
 cd backend
-uvicorn backend.main:app --reload
+uvicorn api:app --reload
 ```
 
 ### Frontend Setup:
