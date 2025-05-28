@@ -114,7 +114,7 @@ npm run dev
 
 ### Home Page
 
-![Home Page]([https://drive.google.com/uc?id=1q6O-eBNDIxqGRzcenW4-UnsQnS3I8CW2])
+![Home Page](https://drive.google.com/uc?id=1CmqAGnfqcBCcP45Rbm4PwCmLwAoUlCsP)
 
 
 ### CCTV Analyzer
