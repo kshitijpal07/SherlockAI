@@ -135,3 +135,8 @@ npm run dev
 ### Face Records
 
 ![Face Records](https://drive.google.com/uc?id=19L84ly6IkGK9rClSB4qG94ZFfzNhk5qD)
+
+
+### Flowchart
+
+![Flowchart](https://drive.google.com/uc?id=1jxnF0V-X3POCh50ZwrOGFqirWpeOMV5i)
