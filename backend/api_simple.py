@@ -12,7 +12,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -53,6 +53,13 @@ async def test_endpoint():
     """Test endpoint to verify FastAPI is working"""
     return {"message": "FastAPI is working!", "status": "success"}
 
+@app.post("/test-form")
+async def test_form_endpoint(
+    test_field: str = Form(...),
+):
+    """Test form data reception"""
+    return {"received": test_field, "status": "success"}
+
 @app.get("/get-police-stations")
 async def get_police_stations():
     """
@@ -83,6 +90,13 @@ async def get_police_stations():
             content={"status": "error", "message": f"Error retrieving police stations: {str(e)}"}
         )
 
+from pydantic import BaseModel
+
+class PoliceStationRegistration(BaseModel):
+    thana_name: str
+    thana_id: str
+    password: str
+
 @app.post("/register-police-station")
 async def register_police_station(
     thana_name: str = Form(...),
@@ -90,9 +104,18 @@ async def register_police_station(
     password: str = Form(...),
 ):
     """
-    Register a new police station in SQLite database
+    Register a new police station in SQLite database (Form data)
     """
     try:
+        print(f"Received registration request: thana_name={thana_name}, thana_id={thana_id}")
+        
+        # Debug: Check if fields are being received properly
+        if not thana_name:
+            print("ERROR: thana_name is empty or None")
+        if not thana_id:
+            print("ERROR: thana_id is empty or None")
+        if not password:
+            print("ERROR: password is empty or None")
         # Validation
         if not thana_name or not thana_id or not password:
             return JSONResponse(
@@ -127,6 +150,54 @@ async def register_police_station(
         conn.close()
         
         return {"status": "success", "message": f"Police station {thana_name} registered successfully"}
+    
+    except Exception as e:
+        print(f"Error registering police station: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Registration failed: {str(e)}"}
+        )
+
+@app.post("/register-police-station-json")
+async def register_police_station_json(registration: PoliceStationRegistration):
+    """
+    Register a new police station in SQLite database (JSON data)
+    """
+    try:
+        # Validation
+        if not registration.thana_name or not registration.thana_id or not registration.password:
+            return JSONResponse(
+                status_code=400,
+                content={"status": "error", "message": "All fields are required"}
+            )
+        
+        if len(registration.password) < 6:
+            return JSONResponse(
+                status_code=400,
+                content={"status": "error", "message": "Password must be at least 6 characters long"}
+            )
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if thana_id already exists
+        cursor.execute("SELECT id FROM police_stations WHERE thana_id = ?", (registration.thana_id,))
+        if cursor.fetchone():
+            conn.close()
+            return JSONResponse(
+                status_code=400,
+                content={"status": "error", "message": "This Thana ID already exists"}
+            )
+        
+        # Insert new police station
+        cursor.execute(
+            "INSERT INTO police_stations (thana_name, thana_id, password, created_at, active) VALUES (?, ?, ?, ?, ?)",
+            (registration.thana_name, registration.thana_id, registration.password, time.strftime('%Y-%m-%d %H:%M:%S'), True)
+        )
+        conn.commit()
+        conn.close()
+        
+        return {"status": "success", "message": f"Police station {registration.thana_name} registered successfully"}
     
     except Exception as e:
         print(f"Error registering police station: {str(e)}")
