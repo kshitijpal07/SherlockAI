@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 
 // API endpoint constants
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 const GET_FACES_ENDPOINT = `${API_BASE_URL}/get-faces`;
 const DELETE_FACE_ENDPOINT = `${API_BASE_URL}/delete-face`;
 

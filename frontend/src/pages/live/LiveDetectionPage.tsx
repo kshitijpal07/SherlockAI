@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 // API endpoint constants
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 const UPLOAD_SUSPECT_ENDPOINT = `${API_BASE_URL}/upload-suspect`;
 const PROCESS_FRAME_ENDPOINT = `${API_BASE_URL}/process-live-frame`;
 

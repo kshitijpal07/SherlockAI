@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+faces.db
+
+# Generated/temporary files
+screenshots_original/
+detected_clips_original/
+images/
+cropped_faces/
+uploads/
+temp/
+tmp/
+highlights/
+
+# Firebase credentials (security sensitive)
+firebase-service-account.json
+
+# Project specific files
+comment_out.txt
+features.json
+
+# Machine Learning models (if large)
+*.onnx
+*.pkl
+*.pt
+*.pth
+models/
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# FastAPI
+.pytest_cache/

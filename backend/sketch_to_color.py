@@ -128,7 +128,8 @@ class Discriminator(nn.Module):
         return self.model(img_input)
     
 # Dataset
-data_dir = r"images\Paired_Images-perfect"
+import os
+data_dir = os.path.join(os.path.dirname(__file__), "images", "Paired_Images-perfect")
 transform = transforms.Compose([
     transforms.Resize((256, 256)),
     transforms.ToTensor(),
@@ -155,7 +156,8 @@ NUM_EPOCHS = 30  # Max epochs, will stop earlier if satisfied
 generator_losses = []
 discriminator_losses = []
 # current_epoch = 0
-# model_filename = "generator_pix2pix_epochs.pth"  # Single file for weights
+model_filename = "generator_pix2pix_epochs.pth"  # Single file for weights
+torch.save(generator.state_dict(), model_filename)
 
 import torch
 import torchvision.transforms as transforms
@@ -166,7 +168,7 @@ import numpy as np
 # Load trained model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 generator = Generator().to(device)
-generator.load_state_dict(torch.load(r"generator_pix2pix.pth", map_location=device))
+# generator.load_state_dict(torch.load(r"generator_pix2pix.pth", map_location=device))
 generator.eval()
 
 # Define transformations (Ensure it matches training)

@@ -33,7 +33,7 @@ const SketchToImagePage: React.FC = () => {
       const formData = new FormData();
       formData.append('sketch', sketch);
 
-      const response = await fetch('http://localhost:8000/sketch-to-image', {
+  const response = await fetch('http://localhost:8001/sketch-to-image', {
         method: 'POST',
         body: formData,
       });

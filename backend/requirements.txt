@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+numpy
+Pillow
+torch
+opencv-python
+insightface
+faiss-cpu
+firebase-admin
+torchvision
+tqdm
+matplotlib

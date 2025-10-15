@@ -4,13 +4,10 @@ import os
 import time
 import firebase_admin
 from firebase_admin import credentials, firestore
+import sqlite3
+import json
 from insightface.app import FaceAnalysis
-
-# Initialize Firestore
-cred = credentials.Certificate(r"crime-ffe7e-firebase-adminsdk-fbsvc-83a9b36b50.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
-
+DB_PATH = os.path.join(os.path.dirname(__file__), "faces.db")
 # Initialize FaceAnalysis model
 face_app = FaceAnalysis(name='buffalo_l')
 face_app.prepare(ctx_id=-1, det_size=(640, 640))
@@ -22,13 +19,16 @@ os.makedirs("highlights", exist_ok=True)  # New directory for highlight clips
 
 
 def load_face_data():
-    """Fetches stored face data from Firestore."""
-    faces_ref = db.collection("faces").stream()
+    """Fetches stored face data from SQLite."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, features FROM faces")
+    rows = cursor.fetchall()
+    conn.close()
     face_database = {}
-    for doc in faces_ref:
-        data = doc.to_dict()
-        if "feature_vector" in data and "name" in data:
-            face_database[data["name"]] = np.array(data["feature_vector"])
+    for name, features_json in rows:
+        feature_vector = np.array(json.loads(features_json))
+        face_database[name] = feature_vector
     return face_database
 
 
