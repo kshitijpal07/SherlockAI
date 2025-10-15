@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Shield, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
@@ -16,13 +14,15 @@ const RegisterPage: React.FC = () => {
   const [isCheckingId, setIsCheckingId] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // API base URL
+  const API_BASE_URL = "/api"; // Using Vite's proxy to avoid CORS issues
+
   const validateThanaId = async (id: string): Promise<boolean> => {
     if (!id) return false;
     try {
-      const thanaRef = collection(db, 'police_stations');
-      const q = query(thanaRef, where('thanaId', '==', id));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.empty;
+      const response = await fetch(`${API_BASE_URL}/check-thana-id/${id}`);
+      const data = await response.json();
+      return data.available;
     } catch (err) {
       console.error('Error validating thana ID:', err);
       return false;
@@ -75,16 +75,22 @@ const RegisterPage: React.FC = () => {
         throw new Error('This Thana ID already exists');
       }
 
-      // Create the police station document
-      const policeStationData = {
-        thanaName,
-        thanaId,
-        password,
-        createdAt: new Date().toISOString(),
-        active: true // Add an active status
-      };
+      // Register the police station via API
+      const formData = new FormData();
+      formData.append('thana_name', thanaName);
+      formData.append('thana_id', thanaId);
+      formData.append('password', password);
 
-      await addDoc(collection(db, 'police_stations'), policeStationData);
+      const response = await fetch(`${API_BASE_URL}/register-police-station`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Registration failed');
+      }
 
       setSuccess('Registration successful! Redirecting to login...');
       setThanaName('');

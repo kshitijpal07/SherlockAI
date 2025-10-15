@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Lock, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 import { useNavigate } from 'react-router-dom';
 
 interface PoliceStation {
@@ -22,25 +20,26 @@ const LoginPage: React.FC = () => {
   const [policeStations, setPoliceStations] = useState<PoliceStation[]>([]);
   const [isLoadingStations, setIsLoadingStations] = useState(true);
 
-  // Fetch registered police stations from Firestore
+  // API base URL
+  const API_BASE_URL = "/api"; // Using Vite's proxy to avoid CORS issues
+
+  // Fetch registered police stations from SQLite via API
   useEffect(() => {
     const fetchPoliceStations = async () => {
       setIsLoadingStations(true);
       try {
-        const policeStationsRef = collection(db, 'police_stations');
-        const q = query(policeStationsRef, where('active', '==', true));
-        const querySnapshot = await getDocs(q);
+        const response = await fetch(`${API_BASE_URL}/get-police-stations`);
+        const result = await response.json();
         
-        const stations: PoliceStation[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          stations.push({
-            value: doc.id,
-            label: data.thanaName || 'Unknown Station'
-          });
-        });
-        
-        setPoliceStations(stations);
+        if (response.ok && result.status === 'success') {
+          const stations: PoliceStation[] = result.stations.map((station: { id: number; thana_name: string; thana_id: string }) => ({
+            value: station.id.toString(),
+            label: station.thana_name
+          }));
+          setPoliceStations(stations);
+        } else {
+          throw new Error(result.message || 'Failed to load police stations');
+        }
       } catch (err) {
         console.error('Error fetching police stations:', err);
         setError('Failed to load police stations. Please try again later.');
@@ -62,32 +61,27 @@ const LoginPage: React.FC = () => {
         throw new Error('Please fill in all fields');
       }
 
-      // Query Firestore for the police station
-      const policeStationsRef = collection(db, 'police_stations');
-      const q = query(
-        policeStationsRef,
-        where('thanaId', '==', thanaId),
-        where('active', '==', true)
-      );
+      // Login via API
+      const formData = new FormData();
+      formData.append('thana_id', thanaId);
+      formData.append('password', password);
 
-      const querySnapshot = await getDocs(q);
+      const response = await fetch(`${API_BASE_URL}/login-police-station`, {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (querySnapshot.empty) {
-        throw new Error('Invalid credentials');
-      }
+      const result = await response.json();
 
-      const policeStation = querySnapshot.docs[0].data();
-
-      // Verify password
-      if (policeStation.password !== password) {
-        throw new Error('Invalid credentials');
+      if (!response.ok) {
+        throw new Error(result.message || 'Login failed');
       }
 
       // Store login info in localStorage
       localStorage.setItem('policeStation', JSON.stringify({
-        id: querySnapshot.docs[0].id,
-        thanaId: policeStation.thanaId,
-        thanaName: policeStation.thanaName
+        id: result.data.id,
+        thanaId: result.data.thana_id,
+        thanaName: result.data.thana_name
       }));
 
       // Navigate to home page
