@@ -181,10 +181,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/screenshots_original", StaticFiles(directory="screenshots_original"), name="screenshots")
-app.mount("/cropped_faces", StaticFiles(directory="backend/cropped_faces"), name="cropped_faces")
-app.mount("/detected_clips_original", StaticFiles(directory="detected_clips_original"), name="detected_clips")
+# Mount static files - use absolute paths or backend-relative paths
+import os
+static_base = os.path.dirname(os.path.abspath(__file__))
+app.mount("/screenshots_original", StaticFiles(directory=os.path.join(static_base, "screenshots_original")), name="screenshots")
+app.mount("/cropped_faces", StaticFiles(directory=os.path.join(static_base, "cropped_faces")), name="cropped_faces")
+app.mount("/detected_clips_original", StaticFiles(directory=os.path.join(static_base, "detected_clips_original")), name="detected_clips")
 
 @app.post("/register-police-station")
 async def register_police_station(
@@ -317,6 +319,11 @@ async def check_thana_id(thana_id: str):
             status_code=500,
             content={"status": "error", "message": f"Error checking thana ID: {str(e)}"}
         )
+
+@app.get("/test")
+async def test_endpoint():
+    """Test endpoint to verify FastAPI is working"""
+    return {"message": "FastAPI is working!", "status": "success"}
 
 @app.get("/get-police-stations")
 async def get_police_stations():
